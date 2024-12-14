@@ -1,25 +1,34 @@
 import {
-  getAuth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
+  onAuthStateChanged,
+  User,
 } from "firebase/auth";
-import app from "./firebaseConfig";
+import auth from "./firebaseConfig";
 
-const auth = getAuth(app);
-
-export const registerUser = (email: string, password: string) => {
-  return createUserWithEmailAndPassword(auth, email, password);
+export const registerWithEmailAndPassword = async (
+  email: string,
+  password: string
+) => {
+  return await createUserWithEmailAndPassword(auth, email, password);
 };
 
-export const loginUser = (email: string, password: string) => {
-  return signInWithEmailAndPassword(auth, email, password);
+export const loginWithEmailAndPassword = async (
+  email: string,
+  password: string
+) => {
+  return await signInWithEmailAndPassword(auth, email, password);
 };
 
-export const logoutUser = () => {
-  return signOut(auth);
+export const logout = async () => {
+  return await signOut(auth);
 };
 
 export const getCurrentUser = () => {
-  return auth.currentUser;
+  return new Promise<User | null>((resolve) => {
+    onAuthStateChanged(auth, (user) => {
+      resolve(user);
+    });
+  });
 };
