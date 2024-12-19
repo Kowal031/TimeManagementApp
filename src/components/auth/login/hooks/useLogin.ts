@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginWithEmailAndPassword } from "../../../../firebase/auth";
+import {
+  loginWithEmailAndPassword,
+  loginWithGoogle,
+} from "../../../../firebase/auth";
 
 export const useLogin = () => {
   const [loading, setLoading] = useState(false);
@@ -12,6 +15,7 @@ export const useLogin = () => {
       setLoading(true);
       setError(null);
       await loginWithEmailAndPassword(email, password);
+
       navigate("/dashboard");
     } catch (err: any) {
       setError(err.message);
@@ -20,5 +24,19 @@ export const useLogin = () => {
     }
   };
 
-  return { loginUser, loading, error };
+  const loginWithGoogleAccount = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      await loginWithGoogle();
+
+      navigate("/dashboard");
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { loginUser, loginWithGoogleAccount, loading, error };
 };

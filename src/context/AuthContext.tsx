@@ -1,5 +1,5 @@
-import { User } from "firebase/auth";
-import React, {
+import { onAuthStateChanged, User } from "firebase/auth";
+import {
   createContext,
   Dispatch,
   FC,
@@ -9,11 +9,11 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import { getCurrentUser } from "../firebase/auth";
+import auth from "../firebase/firebaseConfig";
 
 interface AuthContextType {
-  user: User | null | undefined;
-  setUser: Dispatch<SetStateAction<User | null | undefined>>;
+  user: User | null;
+  setUser: Dispatch<SetStateAction<User | null>>;
   loading: boolean;
 }
 
@@ -24,18 +24,16 @@ interface AuthProviderProps {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null | undefined>(undefined);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const currentUser = await getCurrentUser();
-      console.log(currentUser);
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);
-    };
+    });
 
-    fetchUser();
+    return () => unsubscribe();
   }, []);
 
   return (
